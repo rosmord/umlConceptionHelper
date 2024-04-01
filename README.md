@@ -10,6 +10,12 @@ Some work on the UML diagram contains a rather mecanical part, in particular whe
 The current software makes it automatically. It's somehow a quick hack, and more work could make it more useful.
 
 
+## Running
+
+Well, `./gradlew run` should work.
+
+The jar which is created in `./build/libs` can also be run with `java -jar`.
+
 ## TODO
 
 - add a field for the original class diagram, which should be used as basis
