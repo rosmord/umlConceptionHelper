@@ -1,0 +1,87 @@
+plugins {
+    // Apply the java plugin to add support for Java
+    id 'java'
+
+    // Apply the application plugin to add support for building an application
+    id 'application'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()    
+}
+
+dependencies {
+    // implementation 'net.sourceforge.plantuml:plantuml:8059'
+    implementation 'net.sourceforge.plantuml:plantuml-gplv2:1.2024.3'
+    // Use JUnit Jupiter for testing.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+}
+
+// Define the main class as a variable, 
+// to use it both in the application plugin (i.e. gradle run)
+// and to create an executable jar file.
+//
+// Uncomment the following to :
+// a) use gradle run to start the software
+// b) build an executable jar
+
+ext {
+  mainClassName = 'org.qenherkhopeshef.umlSequenceToClasses.Main'
+}
+
+//// for gradle run :
+application {
+  mainClass = mainClassName
+}
+
+// Executable jar, with copy of libraries
+// Uncomment until the END JAR SECTION comment
+// 
+jar {
+  manifest {
+    attributes(
+      'Main-Class': mainClassName,
+      'Class-Path': configurations.runtimeClasspath.files.collect { "lib/" + it.getName() }.join(' ')
+    )
+  }
+}
+
+// Copy dependencies in the lib folder for executable jar 
+task copyRuntimeLibs(type: Copy) {  
+    into "$buildDir/libs/lib/"
+    from configurations.runtimeClasspath
+}
+
+// Assembly depends on the copy of runtime libs.
+assemble.dependsOn copyRuntimeLibs
+
+//// END JAR SECTION
+
+
+tasks.named('test') {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}
+
+task distClean {
+  dependsOn("clean")
+  doLast {
+    delete "bin"
+    delete ".classpath"
+    delete ".gradle"
+    delete ".nb-gradle"
+    delete ".project"
+    delete ".settings"
+    delete ".vscode"
+    delete '.DS_Store'
+    delete '.idea'
+  }
+}
+

@@ -1,0 +1,43 @@
+@startuml diag1
+skin rose
+actor manager as actor
+boundary ValidateTicketController as ui
+control TicketService as wf
+participant DTOFactory
+entity "t: Ticket" as t
+participant ProgrammerRepository <<lifecycle>>
+participant TicketRepository <<lifecycle>>
+boundary MessagerService as ext
+
+actor -> ui ++: showValidationForm(id)
+ui -> wf ++: findAllProgrammers()
+wf -> ProgrammerRepository ++: findAll()
+ProgrammerRepository --> wf -- : pList
+wf -> DTOFactory ++ : toDTO(pList)
+DTOFactory --> wf --: pDTOs
+wf --> ui --: pDTOs
+ui --> actor --: form
+
+actor -> ui ++: validateTicket(id,programmerId)
+ui -> wf ++ : validateTicket(id,programmerId)
+wf -> ProgrammerRepository ++ : findById(programmerId)
+ProgrammerRepository -> wf -- : p
+wf -> TicketRepository ++: findById(id)
+TicketRepository --> wf -- : t
+wf -> t : setState(OPEN)
+wf -> t : setReviewDate(now())
+wf -> t : setProgrammer(p)
+wf -> TicketRepository  : save(t)
+wf -> ext -- : mailTo(t.getClient().getEmail(), validationMessage)
+ui --> actor : redirect ticket/**id**
+@enduml
+
+
+@startuml diag2
+skin rose
+actor manager as actor
+boundary OtherController as ui2
+
+actor -> ui2 : showMe()
+ui2 --> actor : result
+@enduml
